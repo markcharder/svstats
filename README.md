@@ -14,7 +14,7 @@ After developing the scripts necessary for this, I came across several other pro
 
 ## Installation
 
-The package requires vg 1.54.0 (https://github.com/vgteam/vg) and the bdsg library (https://github.com/vgteam/libbdsg). The vg binary is provided with the svstats package in `bin`. Installation of bdsg is left to the user. Before running svstats, make sure bdsg is in PYTHONPATH:
+The package requires vg 1.54.0 (https://github.com/vgteam/vg), egglib (https://egglib.org/) and the bdsg library (https://github.com/vgteam/libbdsg). The vg binary is provided with the svstats package in `bin`. Installation of bdsg is left to the user. Before running svstats, make sure bdsg is in PYTHONPATH:
 ```bash
 export PYTHONPATH=/path/to/bdsg/lib:$PYTHONPATH
 ```
@@ -41,10 +41,15 @@ The svstats package contains six sub-commands.
 ### svpi
 
 svpi requires the following things:
+
 `reference_name`
+
 This is the name of the reference sequence used in the vcf file provided. The script uses the sample names from the VCF and needs to add the reference name to this list of samples. The reference name must match one of the paths in the gbz.
+
 `gbz`
+
 This is a gbz file containing the genome graph used for finding the positions and lengths of variants relative to the reference genome. All individuals in this graph must be promoted to reference sense paths. The graph I used in my research was constructed by cactus minigraph with the following command:
+
 ```bash
 
 references=($(cut -f 1 seqfile.txt | perl -pe "s/\n/ /g"))
@@ -69,9 +74,13 @@ vg deconstruct --path-prefix my_ref \
 	           my_pg_dir/my_pg.full.gbz > my_pg_dir/my_pg.full.vcf
 
 ```
+
 Unfortunately, the `svpi` statistic can only be calculated for haploid genomes or haplotypes. The genotypes in the VCF must be either '0', '1' or '.', and cannot be diploid calls, such as '1/1', '1|1', '0/0', '0|0', './.' or '.|.'. This may be fixed in a future version.
+
 `vcf_files`
+
 This is a directory containing VCF files for all possible pairwise comparisons between individuals in the pan-genome graph. The number of comparisons grows exponentially with the number of individuals, and starts to get very large beyond 30 genomes. One could in theory do all of these comparisons on a cluster. In my analyses, I had 25 genomes, and ran an all vs all comparison with cactus using the following command, assuming all assemblies are in a directory called `assemblies`:
+
 ```bash
 mkdir seqfiles
 assemblies_dir=`pwd`/assemblies
@@ -111,6 +120,7 @@ for seqfile in seqfiles/*; do
 		         --vcf full clip filter
 done
 ```
+
 The names of the assembly files must match the names of the assemblies in `seqfile.txt`, used to create the master gbz and vcf (first bash command in this section). For example, the `seqfile.txt` used to create the master graph could have:
 `strain1    /path/to/strain1.fasta`
 Then, the same assembly file `strain1.fasta` could be put into the `assemblies` directory for the all against all comparison.
